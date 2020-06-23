@@ -1,0 +1,71 @@
+# TODO: parameters are not used, implement this
+graph:
+  fetcher:
+    http_timeout: 30s
+    status_codes:
+      - 200
+      # - 404
+    rate_limit: 5
+
+
+tasks:
+  - url: http://scrapable.loc/
+    task_ref: index
+
+
+rules:
+  - name: index
+    actions:
+      - type: task
+        task_ref: category
+        selector_type: xpath
+        selector: //a/@href
+
+      - type: text
+        content_name: title
+        selector_type: xpath
+        selector: //head/title
+
+
+  - name: category
+    actions:
+      - type: task
+        task_ref: item
+        selector_type: xpath
+        selector: //div[@class='category-items']//a/@href
+      - type: task
+        task_ref: category
+        selector_type: xpath
+        selector: //div[@class='pagination']//a/@href
+
+      - type: text
+        content_name: title
+        selector_type: xpath
+        selector: //head/title
+      - type: text
+        content_name: name
+        selector_type: xpath
+        selector: //div/h1
+      - type: text
+        content_name: description
+        selector_type: xpath
+        selector: //div[@class='description']
+      - type: text
+        content_name: page
+        selector_type: xpath
+        selector: //div[@class='pagination']//li[contains(@class, 'active')]
+
+  - name: item
+    actions:
+      - type: text
+        content_name: title
+        selector_type: xpath
+        selector: //head/title
+      - type: text
+        content_name: name
+        selector_type: xpath
+        selector: //div/h1
+      - type: text
+        content_name: description
+        selector_type: xpath
+        selector: //div[@class='description']
